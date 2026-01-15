@@ -22,6 +22,8 @@ class User {
     required this.projectsUsers,
   });
 
+  //riempio l'oggetto User dai dati JSON presi dall'API
+
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'],

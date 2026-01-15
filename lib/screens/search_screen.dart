@@ -13,9 +13,9 @@ class _SearchScreenState extends State<SearchScreen> {
   // --- LOGIC VARIABLES ---
   final TextEditingController _controller = TextEditingController();
 
-// Nota: Passiamo AuthService() che ora deve essere un Singleton per mantenere il token
-  final ApiService _apiService = ApiService(AuthService()); 
-  
+  // Nota: Passiamo AuthService() che ora deve essere un Singleton per mantenere il token
+  final ApiService _apiService = ApiService(AuthService());
+
   // <--- 3. Variabile per la rotellina di caricamento
   bool _isLoading = false;
 
@@ -56,7 +56,7 @@ class _SearchScreenState extends State<SearchScreen> {
     if (user != null) {
       // SUCCESSO: Abbiamo l'oggetto User pieno di dati!
       debugPrint("Utente trovato: ${user.fullName} - Livello: ${user.level}");
-      
+
       // QUI CAMBIEREMO PAGINA (Prossimo step)
       /*
       Navigator.push(
@@ -66,7 +66,6 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
       );
       */
-      
     } else {
       // ERRORE: Utente non trovato o token scaduto
       ScaffoldMessenger.of(context).showSnackBar(
@@ -77,7 +76,6 @@ class _SearchScreenState extends State<SearchScreen> {
       );
     }
   }
-    
 
   // --- UI ZONE ---
   @override
@@ -119,19 +117,19 @@ class _SearchScreenState extends State<SearchScreen> {
                 // Main Title
                 Text(
                   "Search 42 Profile",
-                  
+
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        shadows: [
-                          const Shadow(
-                            offset: Offset(0, 2),
-                            blurRadius: 4.0,
-                            color: Colors.black54,
-                          ),
-                        ],
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    shadows: [
+                      const Shadow(
+                        offset: Offset(0, 2),
+                        blurRadius: 4.0,
+                        color: Colors.black54,
                       ),
+                    ],
+                  ),
                 ),
 
                 const SizedBox(height: 40),
@@ -142,44 +140,68 @@ class _SearchScreenState extends State<SearchScreen> {
                   style: const TextStyle(color: Colors.black87, fontSize: 20),
                   cursorColor: Color.fromARGB(221, 0, 153, 255),
                   decoration: const InputDecoration(
-                  hintStyle: TextStyle(fontSize: 20),
+                    hintStyle: TextStyle(fontSize: 20),
                     hintText: "e.g. sfabi",
-                    prefixIcon: Icon(Icons.search, color: Color.fromARGB(221, 0, 153, 255)),
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: Color.fromARGB(221, 0, 153, 255),
+                    ),
                     filled: true,
                     fillColor: Colors.white, // Solid white background
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10.0)),
                       borderSide: BorderSide.none,
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                  borderSide: BorderSide.none,
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                  borderSide: BorderSide(color: Color.fromARGB(221, 0, 153, 255), width: 2),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      borderSide: BorderSide(
+                        color: Color.fromARGB(221, 0, 153, 255),
+                        width: 2,
+                      ),
                     ),
                   ),
                 ),
 
                 const SizedBox(height: 20),
 
-                // Search Button
-                ElevatedButton(
-                  onPressed: _searchUser,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    backgroundColor: const Color.fromARGB(221, 0, 153, 255), // Button color
-                    foregroundColor: Colors.white, // Text color
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                  child: const Text(
-                    "SEARCH",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
+                _isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: Color.fromARGB(
+                            221,
+                            0,
+                            153,
+                            255,
+                          ), // Blu come il bottone
+                        ),
+                      )
+                    : ElevatedButton(
+                        onPressed: _searchUser,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          backgroundColor: const Color.fromARGB(
+                            221,
+                            0,
+                            153,
+                            255,
+                          ),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                        child: const Text(
+                          "SEARCH",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
               ],
             ),
           ),
