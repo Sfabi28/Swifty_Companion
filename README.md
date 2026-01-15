@@ -45,8 +45,9 @@ Bonus (optional)
 
 Environment & Security
 ----------------------
-- Store secrets (client id/secret, redirect URIs, etc.) locally in a `.env` file and never commit them to source control.
-- The app must use the latest 42 API and follow OAuth2 flow described by 42 (intra).
+- Store secrets (client id/secret, redirect URIs, etc.) locally in a `.env` file and never commit them to source control. Ensure `.env` is listed in `.gitignore`.
+- Do NOT include the `.env` file in app assets or in the repository. Secrets packaged in the app can be extracted from the binary.
+- The app must use the latest 42 API and follow the OAuth2 flow described by 42 (intra). Prefer moving sensitive token exchanges to a backend service when possible.
 
 Setup (Flutter)
 ---------------
@@ -58,13 +59,24 @@ flutter pub get
 flutter run
 ```
 
-3. Add a `.env` file in the project root with your OAuth2 credentials and any other sensitive configuration. Example keys:
+3. Add a `.env` file in the project root with your OAuth2 credentials and any other sensitive configuration while developing locally. Example keys (this project looks for `UID` and `SECRET` by default):
 
 ```
-INTRA_CLIENT_ID=your_client_id
-INTRA_CLIENT_SECRET=your_client_secret
-INTRA_REDIRECT_URI=your_redirect_uri
+UID=your_client_id
+SECRET=your_client_secret
+REDIRECT_URI=your_redirect_uri
 ```
+
+Alternative: pass secrets at build/run time using `--dart-define` so they are not stored in source-controlled files. Example:
+
+```bash
+flutter run --dart-define=UID=your_client_id --dart-define=SECRET=your_client_secret
+flutter build apk --dart-define=UID=$UID --dart-define=SECRET=$SECRET
+```
+
+Code fallback: the app will first read `UID`/`SECRET` from `--dart-define` (compile-time defines) and then fall back to reading `.env` via `flutter_dotenv`.
+
+If neither is present the app will not attempt OAuth token exchange and will log a debug warning.
 
 Usage
 -----
