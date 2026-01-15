@@ -76,4 +76,9 @@ class AuthService {
       return false;
     }
   }
+
+  void logout() {
+    _accessToken = null;
+    debugPrint("Logout effettuato: Token rimosso dalla memoria.");
+  }
 }

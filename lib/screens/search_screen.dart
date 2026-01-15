@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/api_service.dart';
+import 'login_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -18,6 +19,16 @@ class _SearchScreenState extends State<SearchScreen> {
 
   // <--- 3. Variabile per la rotellina di caricamento
   bool _isLoading = false;
+
+  void _logout() {
+    // Usiamo pushReplacement per "uccidere" la schermata di ricerca
+    // così se l'utente preme "Indietro" dal login, esce dall'app invece di tornare qui.
+    AuthService().logout();
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+    );
+  }
 
   // Function called when the user presses the Search button
   void _searchUser() async {
@@ -93,6 +104,14 @@ class _SearchScreenState extends State<SearchScreen> {
         elevation: 0, // Removes the shadow
         foregroundColor: Colors.white, // White text/icons
         centerTitle: true,
+
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Logout', // Testo che appare se tieni premuto
+            onPressed: _logout, // Chiama la funzione scritta sopra
+          ),
+        ],
       ),
 
       body: Container(
