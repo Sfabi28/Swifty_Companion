@@ -1,37 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-import 'screens/search_screen.dart';
+import 'screens/login_screen.dart'; // <--- Importa la LoginScreen
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  try {
-    await dotenv.load(fileName: ".env"); // aspetto il caricamento del .env (se presente)
-  } catch (e) {
-    if (kDebugMode) {
-      // Non falliamo l'app in produzione per la mancanza del file .env
-      debugPrint('.env non trovato o errore nel caricamento: $e');
-    }
-  }
-
+  await dotenv.load(fileName: ".env");
   runApp(const SwiftyCompanionApp());
 }
 
 class SwiftyCompanionApp extends StatelessWidget {
-  const SwiftyCompanionApp({super.key}); //costruttore standard di dart
+  const SwiftyCompanionApp({super.key});
 
   @override
-  Widget build(BuildContext context) { //funzione che viene chiamata ogni volta che ridisegno lo schermo
+  Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Swifty Companion',
-      theme: ThemeData( //colori globali dell'app
-        useMaterial3: true,
-        primarySwatch: Colors.blue,
-      ),
-
-      home: const SearchScreen(), //la prima pagina da vedere quando apro l'app (la mia schermata di search)
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(useMaterial3: true),
+      
+      home: const LoginScreen(), 
     );
   }
 }

@@ -5,6 +5,11 @@ import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import 'package:flutter/foundation.dart';
 
 class AuthService {
+
+  static final AuthService _instance = AuthService._internal();
+  factory AuthService() => _instance;
+  AuthService._internal();
+
   final String _baseUrl = 'https://api.intra.42.fr'; //serve per fare il login
   String? _accessToken; 
 

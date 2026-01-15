@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../services/api_service.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -11,7 +12,12 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   // --- LOGIC VARIABLES ---
   final TextEditingController _controller = TextEditingController();
-  final AuthService _authService = AuthService();
+
+// Nota: Passiamo AuthService() che ora deve essere un Singleton per mantenere il token
+  final ApiService _apiService = ApiService(AuthService()); 
+  
+  // <--- 3. Variabile per la rotellina di caricamento
+  bool _isLoading = false;
 
   // Function called when the user presses the Search button
   void _searchUser() async {
@@ -31,10 +37,47 @@ class _SearchScreenState extends State<SearchScreen> {
       return;
     }
 
-    // 3. Call the API (Token check for now)
-    //await _authService.getToken();
-    
+    setState(() {
+      _isLoading = true;
+    });
+
+    // B. Chiediamo i dati (User?)
+    final user = await _apiService.getUser(login);
+
+    // Se l'utente chiude l'app mentre carichiamo, ci fermiamo
+    if (!mounted) return;
+
+    // C. Spegniamo la rotellina
+    setState(() {
+      _isLoading = false;
+    });
+
+    // D. Controlliamo il risultato
+    if (user != null) {
+      // SUCCESSO: Abbiamo l'oggetto User pieno di dati!
+      debugPrint("Utente trovato: ${user.fullName} - Livello: ${user.level}");
+      
+      // QUI CAMBIEREMO PAGINA (Prossimo step)
+      /*
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ProfileScreen(user: user),
+        ),
+      );
+      */
+      
+    } else {
+      // ERRORE: Utente non trovato o token scaduto
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("User not found or API error."),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
+    
 
   // --- UI ZONE ---
   @override
