@@ -15,7 +15,7 @@ Future<void> main() async {
 
   runApp(const MaterialApp(
     home: Scaffold(
-      body: Center(child: Text("Test Token in corso...")),
+      body: Center(child: Text("Testing Token..")),
     ),
   ));
 }
