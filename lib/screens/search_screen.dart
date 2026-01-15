@@ -32,7 +32,7 @@ class _SearchScreenState extends State<SearchScreen> {
     }
 
     // 3. Call the API (Token check for now)
-    await _authService.getToken();
+    //await _authService.getToken();
     
   }
 
