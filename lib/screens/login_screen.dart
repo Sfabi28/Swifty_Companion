@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import 'search_screen.dart'; // Importa la schermata successiva
+import '../services/api_service.dart';
+import 'profile_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,39 +13,38 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   // Istanziamo il servizio di Auth
   final AuthService _authService = AuthService();
-  
-  // Variabile per sapere se stiamo caricando (per mostrare la rotellina)
   bool _isLoading = false;
 
   void _loginWith42() async {
-    // 1. Attiva la rotellina di caricamento
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() { _isLoading = true; });
 
-    // 2. Lancia la procedura di Autenticazione (apre il browser)
-    final bool success = await _authService.authenticate();
+    // 1. Ottieni il token
+    final bool authSuccess = await _authService.authenticate();
 
-    // Se l'utente chiude l'app mentre carica, ci fermiamo per evitare errori
+    if (!authSuccess) {
+      if (!mounted) return;
+      setState(() { _isLoading = false; });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Login Failed!"), backgroundColor: Colors.red),
+      );
+      return;
+    }
+
+    // 2. Login riuscito? Scarichiamo subito il MIO profilo
+    final apiService = ApiService(_authService);
+    final me = await apiService.getMe();
+
     if (!mounted) return;
+    setState(() { _isLoading = false; });
 
-    // 3. Spegni la rotellina
-    setState(() {
-      _isLoading = false;
-    });
-
-    // 4. Se il login è andato a buon fine, cambia pagina
-    if (success) {
+    if (me != null) {
+      // 3. Vado direttamente al Profilo!
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const SearchScreen()),
+        MaterialPageRoute(builder: (context) => ProfileScreen(user: me)),
       );
     } else {
-      // Altrimenti mostra errore
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Login fallito! Riprova."),
-          backgroundColor: Colors.red,
-        ),
+        const SnackBar(content: Text("Error while fetching user"), backgroundColor: Colors.red),
       );
     }
   }
