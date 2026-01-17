@@ -9,6 +9,37 @@ class ApiService {
 
   ApiService(this._authService);
 
+  Future<User?> getMe() async {
+    // usiamo lo stesso controllo token di getUser
+    if (_authService.isTokenExpired) {
+      final success = await _authService.refreshToken();
+      if (!success) return null;
+    }
+
+    final token = _authService.accessToken;
+    if (token == null) return null;
+
+    // l'endpoint magico che dice "chi sono io?"
+    final url = Uri.parse('https://api.intra.42.fr/v2/me');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return User.fromJson(data);
+      } else {
+        if (response.statusCode == 401) _authService.logout();
+        return null;
+      }
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<User?> getUser(String login) async {
   
     if (_authService.isTokenExpired) {
