@@ -10,15 +10,17 @@ class AuthService {
   factory AuthService() => _instance;
   AuthService._internal();
 
-  final String _baseUrl = 'https://api.intra.42.fr'; //serve per fare il login
+  final String _baseUrl = 'https://api.intra.42.fr';
   String? _accessToken; 
+  String? _refreshToken;
+  DateTime? _expiryDate;
 
   // Getter: permette di leggere il token da fuori senza poterlo modificare
   String? get accessToken => _accessToken;
 
   // FUNZIONE 1: Lancia il browser e prende il Codice
   Future<bool> authenticate() async {
-    // 1. Costruiamo l'URL di login
+    // creo l'url per passare all'intra che gestirà lui la richiesta di login (per sicurezza)
     final url = Uri.https('api.intra.42.fr', '/oauth/authorize', {
       'client_id': dotenv.env['UID'],
       'redirect_uri': 'swifty://callback', 
@@ -27,14 +29,13 @@ class AuthService {
     });
 
     try {
-      // 2. Apriamo il browser sicuro
-      // L'app si "congela" qui finché l'utente non finisce il login nel browser
+      // chiamiamo l'url appena creato ed aspettiamo finche l'url stesso non redirecta sull'app
       final result = await FlutterWebAuth2.authenticate(
         url: url.toString(),
-        callbackUrlScheme: 'swifty', // Aspettiamo che il browser chiami swifty://...
+        callbackUrlScheme: 'swifty', // aspettiamo che il browser chiami swifty://...
       );
 
-      // 3. Estraiamo il codice dalla risposta (es. swifty://callback?code=123...)
+      // Estraiamo il parametro 'code' dall'URL di callback ricevuto.
       final code = Uri.parse(result).queryParameters['code'];
       
       if (code == null) {
@@ -42,7 +43,7 @@ class AuthService {
         return false;
       }
 
-      // 4. Passiamo alla Fase 2: scambiare il codice col token
+      // con il codice ricevuto scambiamolo con un token
       return await _exchangeCodeForToken(code);
 
     } catch (e) {
@@ -51,7 +52,29 @@ class AuthService {
     }
   }
 
-  // FUNZIONE 2: Scambia il Codice temporaneo con il Token definitivo
+// Funzione helper che estrae e salva la data di scadenza del token
+  bool _saveData(Map<String, dynamic> data) {
+    try {
+      _accessToken = data['access_token'];
+      
+      if (data['refresh_token'] != null) {
+        _refreshToken = data['refresh_token'];
+      }
+
+      //calcoliamo la data esatta di scadenza
+      int seconds = data['expires_in'];
+      // togliamo 60 secondi per sicurezza (rinnoviamo 1 minuto prima che scada davvero)
+      _expiryDate = DateTime.now().add(Duration(seconds: seconds - 60));
+      
+      debugPrint("✅ Dati salvati. Scadenza: $_expiryDate");
+      return true;
+    } catch (e) {
+      debugPrint("Errore nel salvataggio dati token: $e");
+      return false;
+    }
+  }
+
+  // scambiamo il codice ricevuto dalla callback dell'intra con un token
   Future<bool> _exchangeCodeForToken(String code) async {
     final url = Uri.parse('$_baseUrl/oauth/token');
 
@@ -61,24 +84,70 @@ class AuthService {
         'grant_type': 'authorization_code', 
         'client_id': dotenv.env['UID'],
         'client_secret': dotenv.env['SECRET'],
-        'code': code, // Usiamo il codice appena preso
+        'code': code, // utilizziamo il codice che ci ha reso l'intra
         'redirect_uri': 'swifty://callback',
       },
     );
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      _accessToken = data['access_token'];
-      debugPrint("LOGIN RIUSCITO! Token: $_accessToken");
-      return true;
+          final data = jsonDecode(response.body); // se riceviamo il token (JSON) allora dcodifichiamolo
+          // Usiamo la funzione helper per salvare i dati e calcolare la scadenza.
+          return _saveData(data); 
     } else {
       debugPrint("Errore scambio token: ${response.body}");
       return false;
     }
   }
 
-  void logout() {
+  // funzione per rinnovare il token quando scade
+  Future<bool> refreshToken() async {
+    // se non abbiamo il refresh token (es. mai fatto login), falliamo subito
+    if (_refreshToken == null) {
+      debugPrint("Nessun refresh token disponibile.");
+      return false;
+    }
+
+    final url = Uri.parse('$_baseUrl/oauth/token');
+
+    debugPrint("🔄 Tentativo di rinnovo token...");
+
+    try {
+      final response = await http.post(
+        url,
+        body: {
+          'grant_type': 'refresh_token', // adesso cerchiamo il refresh_token
+          'refresh_token': _refreshToken, // usiamo la chiave di riserva
+          'client_id': dotenv.env['UID'],
+          'client_secret': dotenv.env['SECRET'],
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        // salviamo i nuovi token
+        return _saveData(data);
+      } else {
+        debugPrint("❌ Rinnovo fallito: ${response.body}");
+        // se anche il refresh token è scaduto allora è necessario fare il logout
+        logout();
+        return false;
+      }
+    } catch (e) {
+      debugPrint("Errore di connessione durante il refresh: $e");
+      return false;
+    }
+  }
+
+  // helper utile per l'ApiService: dice se è ora di rinnovare
+  bool get isTokenExpired {
+    if (_expiryDate == null) return true; // Se non c'è data, è scaduto
+    return DateTime.now().isAfter(_expiryDate!);
+  }
+
+void logout() {
     _accessToken = null;
-    debugPrint("Logout effettuato: Token rimosso dalla memoria.");
+    _refreshToken = null;
+    _expiryDate = null;
+    debugPrint("Logout effettuato: Tutti i token rimossi.");
   }
 }
