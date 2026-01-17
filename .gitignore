@@ -44,5 +44,9 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+windows/flutter/ephemeral/
+linux/flutter/ephemeral/
+
+.flutter-plugins
 
 .env
