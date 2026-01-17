@@ -4,7 +4,14 @@ import 'screens/login_screen.dart'; // <--- Importa la LoginScreen
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+
+  try {
+    await dotenv.load(fileName: ".env");
+    debugPrint("✅ File .env trovato e caricato correttamente.");
+  } catch (e) {
+    debugPrint("❌ File .env NON trovato. Errore: $e");
+  }
+
   runApp(const SwiftyCompanionApp());
 }
 
