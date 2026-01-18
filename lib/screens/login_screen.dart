@@ -13,7 +13,42 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   // Istanziamo il servizio di Auth
   final AuthService _authService = AuthService();
-  bool _isLoading = false;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAutoLogin();
+  }
+
+  Future<void> _checkAutoLogin() async {
+    // 1. Chiediamo al service se ci sono token validi in memoria
+    final bool hasToken = await _authService.tryAutoLogin();
+
+    if (hasToken) {
+      debugPrint("🚀 Token trovato! Recupero dati utente...");
+      
+      // 2. Se ho il token, devo scaricare il profilo (User) per passarlo alla prossima schermata
+      final apiService = ApiService(_authService);
+      final me = await apiService.getMe();
+
+      if (!mounted) return;
+
+      if (me != null) {
+        // 3. TUTTO OK: Vado al profilo senza che l'utente tocchi nulla
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => ProfileScreen(user: me)),
+        );
+        return; // Esco dalla funzione, non serve fare altro
+      }
+    }
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   void _loginWith42() async {
     setState(() { _isLoading = true; });
@@ -52,19 +87,11 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/images/background.png"), 
-            fit: BoxFit.cover,
-          ),
-        ),
-        
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(30.0),
+
+      backgroundColor: Colors.transparent,
+
+      body: SafeArea(
+        child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -114,7 +141,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }

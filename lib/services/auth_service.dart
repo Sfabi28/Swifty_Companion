@@ -11,7 +11,11 @@ class AuthService {
   factory AuthService() => _instance;
   AuthService._internal();
 
-  final _storage = const FlutterSecureStorage();
+  final _storage = const FlutterSecureStorage(
+    aOptions: AndroidOptions(
+      encryptedSharedPreferences: true,
+    ),
+  );
 
   final String _baseUrl = 'https://api.intra.42.fr';
   String? _accessToken; 

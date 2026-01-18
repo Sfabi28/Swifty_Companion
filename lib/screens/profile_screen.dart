@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import '../models/user.dart';
 import '../services/auth_service.dart';
 import '../services/api_service.dart';
-import 'login_screen.dart';
+import '../screens/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final User user;
-
+  final dynamic user; // Sostituisci 'dynamic' con il tuo tipo 'User' se hai il modello
+  
   const ProfileScreen({super.key, required this.user});
 
   @override
@@ -14,13 +13,15 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // variabile per gestire se stiamo cercando o no
+  // Variabile per gestire se stiamo cercando o no
   bool _isSearching = false;
   
   final TextEditingController _searchController = TextEditingController();
+  
+  // Istanzio il service (meglio se lo passi o usi un provider, ma va bene così per ora)
   final ApiService _apiService = ApiService(AuthService());
 
-  // funzione Logout
+  // Funzione Logout
   void _logout() {
     AuthService().logout();
     Navigator.of(context).pushAndRemoveUntil(
@@ -29,29 +30,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // funzione che esegue la ricerca vera e propria
+  // Funzione che esegue la ricerca vera e propria
   void _performSearch() async {
     final query = _searchController.text.trim();
     if (query.isEmpty) return;
 
-    // chiude la tastiera
+    // Chiude la tastiera
     FocusScope.of(context).unfocus();
 
     debugPrint("Ricerca avviata per: $query");
     
-    //chiamo API per ricerca utente
+    // Chiamo API per ricerca utente
+    // NOTA: Assicurati che _apiService gestisca gli errori (try/catch) internamente
+    // o avvolgi questo in un try/catch per evitare crash se l'API fallisce.
     final searchedUser = await _apiService.getUser(query);
     
     if (!mounted) return;
     
-    // resetta la barra di ricerca dopo l'invio
+    // Resetta la barra di ricerca dopo l'invio
     setState(() {
       _isSearching = false;
       _searchController.clear();
     });
 
     if (searchedUser != null) {
-      // naviga al nuovo profilo se esiste
+      // Naviga al nuovo profilo se esiste
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -68,60 +71,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // 1. FONDAMENTALE: Sfondo trasparente per vedere l'immagine del main.dart
+      backgroundColor: Colors.transparent,
 
-      resizeToAvoidBottomInset: false,
+      // Evita che lo sfondo si "schiacci" quando apri la tastiera
+      resizeToAvoidBottomInset: false, 
 
-      extendBodyBehindAppBar: true,
- 
-      //imposto l'appbar (la parte in alto)
+      // Fa sì che l'AppBar sia sopra il corpo (utile per trasparenze)
+      extendBodyBehindAppBar: true, 
+
+      // Imposto l'appbar (la parte in alto)
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.transparent, // Trasparente
+        elevation: 0, // Niente ombra
+        foregroundColor: Colors.white, // Icone e testo bianchi
         
+        // Logica del tasto Sinistro (Back o Lente)
         leading: _isSearching
             ? IconButton(
-                icon: const Icon(Icons.arrow_back),
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () {
                   setState(() {
-                    _isSearching = false; // annulla ricerca
+                    _isSearching = false; // Annulla ricerca
                     _searchController.clear();
                   });
                 },
               )
             : IconButton(
-                icon: const Icon(Icons.search),
+                icon: const Icon(Icons.search, color: Colors.white),
                 tooltip: 'Find User',
                 onPressed: () {
                   setState(() {
-                    _isSearching = true; // attiva modalità ricerca
+                    _isSearching = true; // Attiva modalità ricerca
                   });
                 },
               ),
 
+        // Logica del Titolo (Barra di ricerca o Nome Utente)
         title: _isSearching
             ? TextField(
                 controller: _searchController,
-                autofocus: true, // apre subito la tastiera
+                autofocus: true, // Apre subito la tastiera
                 style: const TextStyle(color: Colors.black87, fontSize: 18),
                 cursorColor: const Color.fromARGB(221, 0, 153, 255),
-                onSubmitted: (_) => _performSearch(),
+                onSubmitted: (_) => _performSearch(), // Cerca quando premi invio
                 decoration: const InputDecoration(
                   hintStyle: TextStyle(fontSize: 18, color: Colors.grey),
-                  hintText: "name",
+                  hintText: "login name", // Meglio specificare cosa cercare
                   filled: true,
                   fillColor: Colors.white,
                   contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    borderRadius: BorderRadius.all(Radius.circular(30.0)), // Più rotondo è più bello
                     borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
                     borderSide: BorderSide(
                       color: Color.fromARGB(221, 0, 153, 255),
                       width: 2,
@@ -129,54 +134,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
               )
-            : Text(widget.user.login), // titolo normale (nome dell'utente se non sono in ricerca)
+            : Text(
+                widget.user.login, // Titolo normale
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
 
         centerTitle: true,
 
         actions: [
-          // se sto cercando, aggiungo la lente qui a destra per confermare
+          // Se sto cercando, aggiungo la lente qui a destra per confermare (opzionale)
           if (_isSearching)
             IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: _performSearch, // Lancia la ricerca
+              icon: const Icon(Icons.check, color: Colors.white), // Icona Check è più intuitiva per "conferma"
+              onPressed: _performSearch,
             ),
             
-          // il tasto logout c'è sempre
+          // Il tasto logout c'è sempre
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: _logout,
           ),
         ],
       ),
 
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/images/background.png"),
-            fit: BoxFit.cover,
-          ),
-        ),
+      // 2. BODY PULITO: Niente Container con immagine!
+      body: SafeArea(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Avatar (se vuoi aggiungerlo in futuro)
+              // CircleAvatar(backgroundImage: NetworkImage(widget.user.imageUrl), radius: 50),
+              
+              const SizedBox(height: 20),
+              
               Text(
                 widget.user.fullName,
                 style: const TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
+                  // Aggiungo un'ombra per leggere meglio il testo sullo sfondo
+                  shadows: [
+                     Shadow(blurRadius: 10, color: Colors.black, offset: Offset(2, 2)),
+                  ],
                 ),
               ),
-              const SizedBox(height: 20),
+              
+              const SizedBox(height: 10), // Spazio ridotto
+              
               Text(
-                "Level ${widget.user.level.toStringAsFixed(2)}",
+                "Level ${widget.user.level.toStringAsFixed(2)}", // Formatta a 2 decimali
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.amber,
+                  color: Colors.amber, // Colore oro per il livello
+                  shadows: [
+                     Shadow(blurRadius: 10, color: Colors.black, offset: Offset(2, 2)),
+                  ],
                 ),
               ),
             ],
