@@ -3,12 +3,15 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthService {
 
   static final AuthService _instance = AuthService._internal();
   factory AuthService() => _instance;
   AuthService._internal();
+
+  final _storage = const FlutterSecureStorage();
 
   final String _baseUrl = 'https://api.intra.42.fr';
   String? _accessToken; 
@@ -18,7 +21,33 @@ class AuthService {
   // Getter: permette di leggere il token da fuori senza poterlo modificare
   String? get accessToken => _accessToken;
 
-  // FUNZIONE 1: Lancia il browser e prende il Codice
+  Future<bool> tryAutoLogin() async {
+    // leggiamo i dati salvati nel telefono
+    final storedAccessToken = await _storage.read(key: 'access_token');
+    final storedRefreshToken = await _storage.read(key: 'refresh_token');
+    final storedExpiry = await _storage.read(key: 'expiry_date');
+
+    if (storedAccessToken == null || storedRefreshToken == null || storedExpiry == null) {
+      return false; // non c'è nulla salvato
+    }
+
+    // ripristiniamo le variabili in memoria
+    _accessToken = storedAccessToken;
+    _refreshToken = storedRefreshToken;
+    _expiryDate = DateTime.parse(storedExpiry);
+
+    debugPrint("✅ Auto-Login: Token recuperati dalla memoria.");
+    
+    // se è scaduto, proviamo subito a rinfrescarlo
+    if (isTokenExpired) {
+      debugPrint("⚠️ Token salvato scaduto. Tento refresh...");
+      return await refreshToken();
+    }
+
+    return true;
+  }
+
+  // lancia il browser e prende il Codice
   Future<bool> authenticate() async {
     // creo l'url per passare all'intra che gestirà lui la richiesta di login (per sicurezza)
     final url = Uri.https('api.intra.42.fr', '/oauth/authorize', {
@@ -52,8 +81,8 @@ class AuthService {
     }
   }
 
-// Funzione helper che estrae e salva la data di scadenza del token
-  bool _saveData(Map<String, dynamic> data) {
+  // funzione helper che estrae e salva la data di scadenza del token
+  Future<bool> _saveData(Map<String, dynamic> data) async {
     try {
       _accessToken = data['access_token'];
       
@@ -66,6 +95,15 @@ class AuthService {
       // togliamo 60 secondi per sicurezza (rinnoviamo 1 minuto prima che scada davvero)
       _expiryDate = DateTime.now().add(Duration(seconds: seconds - 60));
       
+      //salviamo nella memoria del telefono i token
+      await _storage.write(key: 'access_token', value: _accessToken);
+      if (_refreshToken != null) {
+        await _storage.write(key: 'refresh_token', value: _refreshToken);
+      }
+      if (_expiryDate != null) {
+        await _storage.write(key: 'expiry_date', value: _expiryDate!.toIso8601String());
+      }
+
       debugPrint("✅ Dati salvati. Scadenza: $_expiryDate");
       return true;
     } catch (e) {
@@ -144,10 +182,12 @@ class AuthService {
     return DateTime.now().isAfter(_expiryDate!);
   }
 
-void logout() {
+  Future<void> logout() async {
     _accessToken = null;
     _refreshToken = null;
     _expiryDate = null;
+
+    await _storage.deleteAll();
     debugPrint("Logout effettuato: Tutti i token rimossi.");
   }
 }
