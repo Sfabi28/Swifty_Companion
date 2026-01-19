@@ -44,9 +44,8 @@ class MyApp extends StatelessWidget {
         
         // 3. Configuriamo lo schema colori per evitare sorprese
         colorScheme: const ColorScheme.dark(
-          background: Colors.transparent, // Vecchio standard
           surface: Colors.transparent,    // Standard Material 3
-          primary: Colors.blue,           // Il tuo colore primario
+          primary: Color.fromARGB(255, 18, 30, 46),           // Il tuo colore primario
         ),
       ),
       // --------------------------------
