@@ -16,6 +16,8 @@ class User {
   final String grade;
   final String? kind;
 
+  final List<Skill> skills;
+
   User({
     required this.id,
     required this.login,
@@ -31,11 +33,13 @@ class User {
     required this.campus,
     required this.grade,
     this.kind,
+    required this.skills,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
     double extractedLevel = 0.0;
     String extractedGrade = "Novice";
+    var extractedSkills = <Skill>[];
 
     if (json['cursus_users'] != null &&
         (json['cursus_users'] as List).isNotEmpty) {
@@ -46,7 +50,13 @@ class User {
 
       extractedLevel = (cursus['level'] as num).toDouble();
 
-      extractedGrade = cursus['grade'] ?? "poolr";
+      extractedGrade = cursus['grade'] ?? "Pisciner";
+
+      if (cursus['skills'] != null) {
+        cursus['skills'].forEach((v) {
+          extractedSkills.add(Skill.fromJson(v));
+        });
+      }
     }
 
     var campusList = <Campus>[];
@@ -74,7 +84,8 @@ class User {
           ? extractedGrade
           : (json['kind'] ?? "Student"),
         
-      kind: json['kind']
+      kind: json['kind'],
+      skills: extractedSkills,
     );
   }
 }
@@ -87,5 +98,22 @@ class Campus {
 
   factory Campus.fromJson(Map<String, dynamic> json) {
     return Campus(id: json['id'], name: json['name']);
+  }
+}
+
+class Skill {
+  final int id;
+  final String name;
+  final double level;
+
+  Skill({required this.id, required this.name, required this.level});
+
+  factory Skill.fromJson(Map<String, dynamic> json) {
+    return Skill(
+      id: json['id'],
+      name: json['name'],
+      // Level a volte arriva come int, quindi usiamo 'num' per sicurezza
+      level: (json['level'] as num).toDouble(), 
+    );
   }
 }

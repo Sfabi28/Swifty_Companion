@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/info_template.dart';
+import '../templates/info_template.dart';
 
 class UserData extends StatelessWidget {
   final dynamic user;
@@ -41,7 +41,7 @@ class UserData extends StatelessWidget {
         ),
 
         InfoCard(
-          label: "piscine Year",
+          label: "Piscine Year",
           value: "${user.poolMonth} - ${user.poolYear}",
           icon: Icons.pool,
           color: Colors.orange,

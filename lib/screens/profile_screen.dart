@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:swifty_companion/screens/widgets/user_skills.dart';
 import '../services/auth_service.dart';
 import '../services/api_service.dart';
 import '../screens/login_screen.dart';
@@ -223,6 +224,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 20),
                 UserData(user: widget.user), //
+                const SizedBox(height: 20),
+                UserSkills(user: widget.user), //
                 const SizedBox(height: 800), // Spazio extra
               ],
             ),

@@ -33,6 +33,24 @@ class InfoCard extends StatelessWidget {
         child: InkWell(
           onTap: () async {
             await Clipboard.setData(ClipboardData(text: value));
+
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                      "$label text copied!",
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 0, 0, 0),
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.0,
+                          ),
+                    ),
+                  duration: const Duration(seconds: 2),
+                  backgroundColor: const Color.fromARGB(255, 133, 131, 131),
+                ),
+              );
+            }
           },
 
           child: Padding(
