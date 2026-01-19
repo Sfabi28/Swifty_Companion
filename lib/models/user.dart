@@ -3,66 +3,89 @@ class User {
   final String login;
   final String email;
   final String fullName;
-  final String? imageUrl;
+  final String imageUrl;
   final int wallet;
   final int correctionPoint;
-  
-  final List<dynamic> cursusUsers;
-  final List<dynamic> projectsUsers;
+  final double level;
+
+  final String? location;
+  final String? poolMonth;
+  final String? poolYear;
+  final List<Campus> campus;
+
+  final String grade;
+  final String? kind;
 
   User({
     required this.id,
     required this.login,
     required this.email,
     required this.fullName,
-    this.imageUrl,
+    required this.imageUrl,
     required this.wallet,
     required this.correctionPoint,
-    required this.cursusUsers,
-    required this.projectsUsers,
+    required this.level,
+    this.location,
+    this.poolMonth,
+    this.poolYear,
+    required this.campus,
+    required this.grade,
+    this.kind,
   });
 
-  //riempio l'oggetto User dai dati JSON presi dall'API
-
   factory User.fromJson(Map<String, dynamic> json) {
+    double extractedLevel = 0.0;
+    String extractedGrade = "Novice";
+
+    if (json['cursus_users'] != null &&
+        (json['cursus_users'] as List).isNotEmpty) {
+      var cursus = (json['cursus_users'] as List).firstWhere(
+        (c) => c['cursus_id'] == 21,
+        orElse: () => (json['cursus_users'] as List).first,
+      );
+
+      extractedLevel = (cursus['level'] as num).toDouble();
+
+      extractedGrade = cursus['grade'] ?? "poolr";
+    }
+
+    var campusList = <Campus>[];
+    if (json['campus'] != null) {
+      json['campus'].forEach((v) {
+        campusList.add(Campus.fromJson(v));
+      });
+    }
+
     return User(
       id: json['id'],
       login: json['login'],
       email: json['email'],
-      fullName: json['displayname'],
-      
-      imageUrl: (json['image'] != null && json['image']['link'] != null)
-          ? json['image']['link']
-          : null,
-
+      fullName: json['displayname'] ?? json['usual_full_name'] ?? "Unknown",
+      imageUrl: json['image']['link'] ?? "",
       wallet: json['wallet'] ?? 0,
       correctionPoint: json['correction_point'] ?? 0,
-      
-      cursusUsers: json['cursus_users'] ?? [],
-      projectsUsers: json['projects_users'] ?? [],
+      level: extractedLevel,
+      location: json['location'],
+      poolMonth: json['pool_month'],
+      poolYear: json['pool_year'],
+      campus: campusList,
+
+      grade: extractedGrade.isNotEmpty
+          ? extractedGrade
+          : (json['kind'] ?? "Student"),
+        
+      kind: json['kind']
     );
   }
+}
 
-// queste funzioni estraggono il livello e le skills dall'array cursusUsers 
-  double get level {
-    if (cursusUsers.isEmpty) return 0.0;
-    
-    for (var c in cursusUsers) {
-      if (c['cursus']['id'] == 21) {
-        return (c['level'] as num).toDouble();
-      }
-    }
-    return (cursusUsers[0]['level'] as num).toDouble();
-  }
+class Campus {
+  final int id;
+  final String name;
 
-  List<dynamic> get skills {
-    if (cursusUsers.isEmpty) return [];
-    
-    for (var c in cursusUsers) {
-      if (c['cursus']['id'] == 21) {
-        return c['skills'] ?? [];
-      }
-    }
-    return cursusUsers[0]['skills'] ?? [];
+  Campus({required this.id, required this.name});
+
+  factory Campus.fromJson(Map<String, dynamic> json) {
+    return Campus(id: json['id'], name: json['name']);
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class BasicInfoScreen extends StatelessWidget {
-
   final dynamic user;
 
   const BasicInfoScreen({super.key, required this.user});
@@ -10,9 +9,8 @@ class BasicInfoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // 1. NOME
         Text(
-          user.fullName, 
+          user.fullName,
           textAlign: TextAlign.center,
           style: const TextStyle(
             color: Color.fromARGB(221, 0, 0, 0),
@@ -21,7 +19,6 @@ class BasicInfoScreen extends StatelessWidget {
           ),
         ),
 
-        // 2. LOGIN
         Text(
           user.login,
           style: const TextStyle(
@@ -33,7 +30,6 @@ class BasicInfoScreen extends StatelessWidget {
 
         const SizedBox(height: 20),
 
-        // 3. IMMAGINE PROFILO
         Container(
           padding: const EdgeInsets.all(4),
           decoration: const BoxDecoration(
@@ -48,16 +44,54 @@ class BasicInfoScreen extends StatelessWidget {
               ),
             ],
           ),
-          child: CircleAvatar(
-            radius: 80,
-            backgroundColor: const Color.fromARGB(255, 238, 238, 238),
-            backgroundImage: NetworkImage(user.imageUrl),
+          child: Stack(
+            children: [
+              CircleAvatar(
+                radius: 80,
+                backgroundColor: const Color.fromARGB(255, 238, 238, 238),
+                backgroundImage: NetworkImage(user.imageUrl),
+              ),
+
+              Positioned(
+                bottom: 0,
+                right: 5,
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: (user.location != null) ? Colors.green : Colors.grey,
+                    shape: BoxShape.circle,
+
+                    border: Border.all(color: Colors.white, width: 4),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
 
-        const SizedBox(height: 20),
+        const SizedBox(height: 15),
 
-        // 4. LIVELLO (Testo)
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.black87,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            user.grade.replaceAll('_', ' ').toUpperCase(),
+
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 10),
+
         Text(
           "Level ${user.level.toStringAsFixed(2)}",
           style: const TextStyle(
@@ -69,7 +103,6 @@ class BasicInfoScreen extends StatelessWidget {
 
         const SizedBox(height: 10),
 
-        // 5. BARRA LIVELLO
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Column(

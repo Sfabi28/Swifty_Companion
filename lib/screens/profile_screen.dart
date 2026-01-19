@@ -4,7 +4,8 @@ import '../services/api_service.dart';
 import '../screens/login_screen.dart';
 
 import '../screens/widgets/basic_info_screen.dart';
-
+import '../screens/widgets/user_data.dart';
+import '../screens/widgets/user_economy.dart';
 
 class ProfileScreen extends StatefulWidget {
   final dynamic user;
@@ -190,10 +191,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             child: Column(
               children: [
-                BasicInfoScreen(user: widget.user), //nome, immagine, livello
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 20,
+                    horizontal: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Color.fromARGB(20, 0, 0, 0),
+                    borderRadius: BorderRadius.circular( 20 ),
+                  ),
+                  child: Column(
+                    children: [
+                      BasicInfoScreen(
+                        user: widget.user,
+                      ),
 
+                      const SizedBox(height: 15),
+
+                      const Divider(
+                        color: Color.fromARGB(150, 0, 0, 0),
+                        thickness: 0.5,
+                        indent: 20,
+                        endIndent: 20,
+                      ),
+
+                      const SizedBox(height: 15),
+
+                      UserEconomy(user: widget.user), // Wallet e Punti
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 20),
-
+                UserData(user: widget.user), //
                 const SizedBox(height: 800), // Spazio extra
               ],
             ),
