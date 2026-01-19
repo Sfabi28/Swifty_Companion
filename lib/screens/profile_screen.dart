@@ -3,6 +3,9 @@ import '../services/auth_service.dart';
 import '../services/api_service.dart';
 import '../screens/login_screen.dart';
 
+import '../screens/widgets/basic_info_screen.dart';
+
+
 class ProfileScreen extends StatefulWidget {
   final dynamic user;
 
@@ -168,14 +171,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
 
-      // 2. BODY PULITO: Niente Container con immagine!
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0), // Un po' di aria ovunque
+          physics: const BouncingScrollPhysics(),
+          child: Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            padding: const EdgeInsets.all(20.0),
+            margin: const EdgeInsets.only(
+              left: 20,
+              right: 20,
+              bottom: 20,
+              top: 50,
+            ),
+
             child: Column(
               children: [
-                
+                BasicInfoScreen(user: widget.user), //nome, immagine, livello
+
+                const SizedBox(height: 20),
+
+                const SizedBox(height: 800), // Spazio extra
               ],
             ),
           ),
