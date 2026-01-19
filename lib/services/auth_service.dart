@@ -98,7 +98,7 @@ class AuthService {
       int seconds = data['expires_in'];
       // togliamo 60 secondi per sicurezza (rinnoviamo 1 minuto prima che scada davvero)
       _expiryDate = DateTime.now().add(Duration(seconds: seconds - 60));
-      
+        
       //salviamo nella memoria del telefono i token
       await _storage.write(key: 'access_token', value: _accessToken);
       if (_refreshToken != null) {

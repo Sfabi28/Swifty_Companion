@@ -4,7 +4,7 @@ import '../services/api_service.dart';
 import '../screens/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final dynamic user; // Sostituisci 'dynamic' con il tuo tipo 'User' se hai il modello
+  final dynamic user;
   
   const ProfileScreen({super.key, required this.user});
 
@@ -113,7 +113,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 controller: _searchController,
                 autofocus: true, // Apre subito la tastiera
                 style: const TextStyle(color: Colors.black87, fontSize: 18),
-                cursorColor: const Color.fromARGB(221, 0, 153, 255),
+                cursorColor: const Color.fromARGB(180, 18, 30, 46),
                 onSubmitted: (_) => _performSearch(), // Cerca quando premi invio
                 decoration: const InputDecoration(
                   hintStyle: TextStyle(fontSize: 18, color: Colors.grey),
@@ -128,7 +128,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(30.0)),
                     borderSide: BorderSide(
-                      color: Color.fromARGB(221, 0, 153, 255),
+                      color: Color.fromARGB(180, 18, 30, 46),
                       width: 2,
                     ),
                   ),
