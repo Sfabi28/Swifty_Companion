@@ -69,7 +69,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("User not found"),
+          content: Text(
+            "User not found",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -226,7 +233,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 UserData(user: widget.user), //
                 const SizedBox(height: 20),
                 UserSkills(user: widget.user), //
-                const SizedBox(height: 800), // Spazio extra
+                //const SizedBox(height: 800), // Spazio extra
               ],
             ),
           ),
