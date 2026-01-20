@@ -186,7 +186,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Container(
             width: double.infinity,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: const Color.fromARGB(200, 255, 255, 255),
               borderRadius: BorderRadius.circular(20),
             ),
             padding: const EdgeInsets.all(20.0),
@@ -205,7 +205,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     horizontal: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: Color.fromARGB(20, 0, 0, 0),
+                    color: Color.fromARGB(255, 214, 214, 214),
                     borderRadius: BorderRadius.circular( 20 ),
                   ),
                   child: Column(

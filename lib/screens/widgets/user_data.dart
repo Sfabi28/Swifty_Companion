@@ -23,14 +23,7 @@ class UserData extends StatelessWidget {
           label: "Email",
           value: user.email,
           icon: Icons.email_outlined,
-          color: Colors.blue,
-        ),
-
-        InfoCard(
-          label: "Location",
-          value: locationDisplay,
-          icon: isAvailable ? Icons.computer : Icons.desktop_access_disabled,
-          color: isAvailable ? Colors.green : Colors.grey,
+          color: const Color.fromARGB(255, 161, 44, 44),
         ),
 
         InfoCard(
@@ -39,12 +32,20 @@ class UserData extends StatelessWidget {
           icon: Icons.location_city,
           color: Colors.purple,
         ),
+        
+        InfoCard(
+          label: "Location",
+          value: locationDisplay,
+          icon: isAvailable ? Icons.computer : Icons.desktop_access_disabled,
+          color: isAvailable ? Colors.green : Colors.grey,
+        ),
+
 
         InfoCard(
           label: "Piscine Year",
           value: "${user.poolMonth} - ${user.poolYear}",
           icon: Icons.pool,
-          color: Colors.orange,
+          color: const Color.fromARGB(255, 9, 189, 165),
         ),
       ],
     );
