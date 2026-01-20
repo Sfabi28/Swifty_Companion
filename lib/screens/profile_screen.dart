@@ -51,7 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             SizedBox(width: 15),
             Text(
-              "Searching user...", 
+              "Searching for user...", 
               style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)
             ),
           ],
@@ -92,7 +92,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               Icon(Icons.wifi_off, color: Colors.white),
               SizedBox(width: 10),
-              Text("No Internet Connection"),
+              Text("No Internet Connection", style: TextStyle(color: Color.fromARGB(255, 0, 0, 0))),
             ],
           ),
           backgroundColor: Colors.red,
