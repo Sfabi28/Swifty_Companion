@@ -1,3 +1,5 @@
+// import 'package:flutter/material.dart';
+
 class User {
   final int id;
   final String login;
@@ -15,8 +17,10 @@ class User {
 
   final String grade;
   final String? kind;
+  final bool isStaff;
 
   final List<Skill> skills;
+  final List<Project> projects;
 
   User({
     required this.id,
@@ -33,7 +37,9 @@ class User {
     required this.campus,
     required this.grade,
     this.kind,
+    required this.isStaff,
     required this.skills,
+    required this.projects,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -41,19 +47,30 @@ class User {
     String extractedGrade = "Novice";
     var extractedSkills = <Skill>[];
 
-    if (json['cursus_users'] != null &&
-        (json['cursus_users'] as List).isNotEmpty) {
-      var cursus = (json['cursus_users'] as List).firstWhere(
-        (c) => c['cursus_id'] == 21,
-        orElse: () => (json['cursus_users'] as List).first,
+    int targetCursusId = 21;
+    List<dynamic> cursusUsers = json['cursus_users'] ?? [];
+
+    bool hasCursus21 = cursusUsers.any((c) => c['cursus_id'] == 21);
+    bool hasPiscine9 = cursusUsers.any((c) => c['cursus_id'] == 9);
+
+    if (hasCursus21) {
+      targetCursusId = 21;
+    } else if (hasPiscine9) {
+      targetCursusId = 9;
+    } else if (cursusUsers.isNotEmpty) {
+      targetCursusId = cursusUsers.first['cursus_id'];
+    }
+
+    if (cursusUsers.isNotEmpty) {
+      var targetCursus = cursusUsers.firstWhere(
+        (c) => c['cursus_id'] == targetCursusId,
+        orElse: () => cursusUsers.first,
       );
+      extractedLevel = (targetCursus['level'] as num).toDouble();
+      extractedGrade = targetCursus['grade'] ?? "Pisciner";
 
-      extractedLevel = (cursus['level'] as num).toDouble();
-
-      extractedGrade = cursus['grade'] ?? "Pisciner";
-
-      if (cursus['skills'] != null) {
-        cursus['skills'].forEach((v) {
+      if (targetCursus['skills'] != null) {
+        targetCursus['skills'].forEach((v) {
           extractedSkills.add(Skill.fromJson(v));
         });
       }
@@ -64,6 +81,32 @@ class User {
       json['campus'].forEach((v) {
         campusList.add(Campus.fromJson(v));
       });
+    }
+
+    var extractedProjects = <Project>[];
+
+    if (json['projects_users'] != null) {
+      List<dynamic> rawProjects = json['projects_users'];
+
+      //debugPrint("DEBUG: Progetti grezzi ricevuti: ${rawProjects.length}");
+
+      for (var v in rawProjects) {
+        Project p = Project.fromJson(v);
+
+        if (targetCursusId == 21) {
+          if (!p.cursusIds.contains(9)) {
+            extractedProjects.add(p);
+          }
+        } else if (targetCursusId == 9) {
+          if (p.cursusIds.contains(9)) {
+            extractedProjects.add(p);
+          }
+        } else {
+          extractedProjects.add(p);
+        }
+      }
+
+     // debugPrint("DEBUG: Progetti dopo filtro: ${extractedProjects.length}");
     }
 
     return User(
@@ -79,13 +122,13 @@ class User {
       poolMonth: json['pool_month'],
       poolYear: json['pool_year'],
       campus: campusList,
-
       grade: extractedGrade.isNotEmpty
           ? extractedGrade
           : (json['kind'] ?? "Student"),
-        
       kind: json['kind'],
+      isStaff: json['staff?'] ?? false,
       skills: extractedSkills,
+      projects: extractedProjects,
     );
   }
 }
@@ -93,9 +136,7 @@ class User {
 class Campus {
   final int id;
   final String name;
-
   Campus({required this.id, required this.name});
-
   factory Campus.fromJson(Map<String, dynamic> json) {
     return Campus(id: json['id'], name: json['name']);
   }
@@ -105,15 +146,48 @@ class Skill {
   final int id;
   final String name;
   final double level;
-
   Skill({required this.id, required this.name, required this.level});
-
   factory Skill.fromJson(Map<String, dynamic> json) {
     return Skill(
       id: json['id'],
       name: json['name'],
-      // Level a volte arriva come int, quindi usiamo 'num' per sicurezza
-      level: (json['level'] as num).toDouble(), 
+      level: (json['level'] as num).toDouble(),
+    );
+  }
+}
+
+class Project {
+  final String name;
+  final String status;
+  final bool? validated;
+  final int? finalMark;
+  final String slug;
+  final List<int> cursusIds;
+
+  Project({
+    required this.name,
+    required this.status,
+    this.validated,
+    this.finalMark,
+    required this.slug,
+    required this.cursusIds,
+  });
+
+  factory Project.fromJson(Map<String, dynamic> json) {
+    var cIds = <int>[];
+    if (json['cursus_ids'] != null) {
+      json['cursus_ids'].forEach((v) {
+        cIds.add(v as int);
+      });
+    }
+
+    return Project(
+      name: json['project']['name'] ?? "Unknown",
+      slug: json['project']['slug'] ?? "",
+      status: json['status'],
+      validated: json['validated?'],
+      finalMark: json['final_mark'],
+      cursusIds: cIds,
     );
   }
 }

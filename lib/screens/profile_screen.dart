@@ -7,6 +7,7 @@ import '../screens/login_screen.dart';
 import '../screens/widgets/basic_info_screen.dart';
 import '../screens/widgets/user_data.dart';
 import '../screens/widgets/user_economy.dart';
+import '../screens/widgets/user_projects.dart';
 
 class ProfileScreen extends StatefulWidget {
   final dynamic user;
@@ -230,9 +231,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                UserData(user: widget.user), //
+                UserData(user: widget.user),
                 const SizedBox(height: 20),
-                UserSkills(user: widget.user), //
+                UserSkills(user: widget.user),
+                const SizedBox(height: 20),
+                UserProjects(user: widget.user),
                 //const SizedBox(height: 800), // Spazio extra
               ],
             ),

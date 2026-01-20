@@ -75,11 +75,13 @@ class BasicInfoScreen extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           decoration: BoxDecoration(
-            color: Colors.black87,
+            color: user.isStaff ? Colors.red : Colors.black87,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
-            user.grade.replaceAll('_', ' ').toUpperCase(),
+            user.isStaff
+                ? "STAFF"
+                : user.grade.replaceAll('_', ' ').toUpperCase(),
 
             style: const TextStyle(
               color: Colors.white,
