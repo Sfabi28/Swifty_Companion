@@ -42,8 +42,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text("Searching user..."),
-        duration: Duration(milliseconds: 500),
+        content: Row(
+          children: [
+            SizedBox(
+              width: 20, 
+              height: 20, 
+              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black)
+            ),
+            SizedBox(width: 15),
+            Text(
+              "Searching user...", 
+              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)
+            ),
+          ],
+        ),
+        backgroundColor: Colors.white,
+        duration: Duration(days: 1),
       ),
     );
 
@@ -51,6 +65,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final searchedUser = await _apiService.getUser(query);
 
       if (!mounted) return;
+
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
       setState(() {
         _isSearching = false;
@@ -67,6 +83,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     } on SocketException {
       if (!mounted) return;
+      
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Row(
@@ -82,6 +101,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     } catch (e) {
       if (!mounted) return;
+
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
       String errorMessage = "User not found";
 

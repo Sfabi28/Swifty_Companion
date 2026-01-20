@@ -95,7 +95,7 @@ class ApiService {
         throw Exception("API Error");
       }
     } on SocketException {
-      throw const SocketException("Nessuna connessione internet");
+      throw const SocketException("No Internet Connection");
     } catch (e) {
       rethrow;
     }

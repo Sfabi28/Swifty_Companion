@@ -46,7 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("No Internet Connection. Please login manually."),
+            content: Text("No Internet Connection.", style: TextStyle(color: Color.fromARGB(255, 0, 0, 0))),
             backgroundColor: Colors.orange,
           ),
         );
@@ -77,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Login Failed!"),
+            content: Text("Login Failed!", style: TextStyle(color: Color.fromARGB(255, 0, 0, 0))),
             backgroundColor: Colors.red,
           ),
         );
@@ -102,16 +102,10 @@ class _LoginScreenState extends State<LoginScreen> {
         _isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Row(
-            children: [
-              Icon(Icons.wifi_off, color: Colors.white),
-              SizedBox(width: 10),
-              Text("Connection lost during login"),
-            ],
+      const SnackBar(
+            content: Text("Login Failed!"),
+            backgroundColor: Colors.red,
           ),
-          backgroundColor: Colors.red,
-        ),
       );
     } catch (e) {
       if (!mounted) return;
@@ -120,7 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Error: ${e.toString()}"),
+          content: Text("Error: ${e.toString()}", style: TextStyle(color: Color.fromARGB(255, 0, 0, 0))),
           backgroundColor: Colors.red,
         ),
       );
