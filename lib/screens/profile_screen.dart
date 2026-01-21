@@ -116,7 +116,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SnackBar(
           content: Text(
             errorMessage,
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
           ),
           backgroundColor: Colors.red,
         ),

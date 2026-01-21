@@ -69,10 +69,18 @@ class _UserProjectsState extends State<UserProjects> {
             ..._groupedProjects.entries.map((entry) {
               final String projectSlug = entry.key;
               final List<Project> history = entry.value;
-              final Project bestProject = history.first;
-              final int hiddenCount = history.length - 1;
 
-              bool isExpanded = _expandedStates[projectSlug] ?? false;
+              final Project bestProject = history.reduce((curr, next) {
+                int markA = curr.finalMark ?? -1;
+                int markB = next.finalMark ?? -1;
+                
+                if (markA == markB) {
+                   return (curr.validated == true) ? curr : next;
+                }
+                return markA > markB ? curr : next;
+              });
+
+              final int hiddenCount = history.length - 1;
 
               if (hiddenCount <= 0) {
                 return Padding(
@@ -80,6 +88,8 @@ class _UserProjectsState extends State<UserProjects> {
                   child: ProjectCard(project: bestProject),
                 );
               }
+
+              bool isExpanded = _expandedStates[projectSlug] ?? false;
 
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10),
@@ -135,7 +145,7 @@ class _UserProjectsState extends State<UserProjects> {
                         count: hiddenCount,
                       ),
 
-                      children: history.asMap().entries.skip(1).map((entry) {
+                      children: history.asMap().entries.map((entry) {
                         int index = entry.key;
                         Project oldProject = entry.value;
                         int chronologicalNumber = history.length - index - 1;
