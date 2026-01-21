@@ -200,7 +200,7 @@ class AuthService {
 
 
 
-   Future<void> sabotageToken() async {
+/*    Future<void> sabotageToken() async {
     _accessToken = "TOKEN_SABOTATO_PER_DEMO_12345";
     
     await _storage.write(key: 'access_token', value: _accessToken);
@@ -213,6 +213,6 @@ class AuthService {
     debugPrint("🕒  Scadenza: SCADUTO (impostata a 1 ora fa)");
     debugPrint("👉  La prossima chiamata API darà errore 401 e lancerà il Refresh.");
     debugPrint("==================================================\n");
-  }
+  } */
 }
 

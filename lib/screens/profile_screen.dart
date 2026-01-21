@@ -251,7 +251,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 // AGGIUNTA DEL PULSANTE PER SABOTARE IL TOKEN
                 ////////////////////////////////////////////////////////////////////////////////////////////
                 
-                
+                /* 
                 const SizedBox(height: 20),
                 
                 Padding(
@@ -292,7 +292,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 40), */
 
                 ////////////////////////////////////////////////////////////////////////////////////
               ],
