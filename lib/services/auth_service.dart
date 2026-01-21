@@ -126,7 +126,7 @@ class AuthService {
         'grant_type': 'authorization_code', 
         'client_id': dotenv.env['UID'],
         'client_secret': dotenv.env['SECRET'],
-        'code': code, // utilizziamo il codice che ci ha reso l'intra
+        'code': code,
         'redirect_uri': 'swifty://callback',
       },
     );
@@ -194,4 +194,25 @@ class AuthService {
     await _storage.deleteAll();
     debugPrint("Logout effettuato: Tutti i token rimossi.");
   }
+
+
+
+
+
+
+   Future<void> sabotageToken() async {
+    _accessToken = "TOKEN_SABOTATO_PER_DEMO_12345";
+    
+    await _storage.write(key: 'access_token', value: _accessToken);
+
+    _expiryDate = DateTime.now().subtract(const Duration(hours: 1)); 
+
+    debugPrint("\n==================================================");
+    debugPrint("⚠️  SABOTAGGIO ATTIVATO MANUALMENTE");
+    debugPrint("🔑  Access Token: CORROTTO (ora è '$_accessToken')");
+    debugPrint("🕒  Scadenza: SCADUTO (impostata a 1 ora fa)");
+    debugPrint("👉  La prossima chiamata API darà errore 401 e lancerà il Refresh.");
+    debugPrint("==================================================\n");
+  }
 }
+

@@ -247,6 +247,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 UserSkills(user: widget.user),
                 const SizedBox(height: 20),
                 UserProjects(user: widget.user),
+
+                // AGGIUNTA DEL PULSANTE PER SABOTARE IL TOKEN
+                ////////////////////////////////////////////////////////////////////////////////////////////
+                
+                
+                const SizedBox(height: 20),
+                
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red.shade700,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 5,
+                    ),
+                    icon: const Icon(Icons.bug_report, size: 28),
+                    label: const Text(
+                      "SABOTAGE TOKEN (TEST REFRESH)",
+                      style: TextStyle(
+                        fontSize: 16, 
+                        fontWeight: FontWeight.bold
+                      ),
+                    ),
+                    onPressed: () async {
+                      await AuthService().sabotageToken();
+
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              "⚠️ TOKEN SABOTATO!",
+                              style: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+                            ),
+                            backgroundColor: Colors.red.shade900,
+                            duration: const Duration(seconds: 3),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(height: 40),
+
+                ////////////////////////////////////////////////////////////////////////////////////
               ],
             ),
           ),

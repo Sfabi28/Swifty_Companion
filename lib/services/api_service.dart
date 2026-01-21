@@ -11,6 +11,7 @@ class ApiService {
   ApiService(this._authService);
 
   Future<List<dynamic>> _fetchAllProjectsRaw(int userId, String token) async {
+    debugPrint("user id is: $userId");
     List<dynamic> allProjects = [];
     int pageNumber = 1;
     bool keepFetching = true;
@@ -33,7 +34,7 @@ class ApiService {
             keepFetching = false;
           } else {
             allProjects.addAll(pageData);
-            if (pageData.length < 100) {
+            if (pageData.length < 30) {
               keepFetching = false;
             } else {
               pageNumber++;
