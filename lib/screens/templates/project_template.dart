@@ -5,7 +5,8 @@ class ProjectCard extends StatelessWidget {
   final Project project;
   final bool isHistory;
   final bool hasShadow;
-  final int? count; // Il numero di tentativi extra (+X)
+  final int? count;
+  final int? index;
 
   const ProjectCard({
     super.key,
@@ -13,11 +14,11 @@ class ProjectCard extends StatelessWidget {
     this.isHistory = false,
     this.hasShadow = true,
     this.count,
+    this.index,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Logica Colori
     Color statusColor = Colors.grey;
     int? mark = project.finalMark;
     bool isValidated = project.validated ?? false;
@@ -25,33 +26,41 @@ class ProjectCard extends StatelessWidget {
 
     if (isValidated) {
       statusColor = Colors.green;
-    } else if (mark != null && mark >= 80) {
+    } else if (mark != null && mark >= 100) {
       statusColor = Colors.green;
-    } else if (mark != null && mark < 80) {
+    } else if (mark != null && mark < 100) {
       statusColor = Colors.red;
-    } else if (status == "in_progress" || status == "creating_group" || status == "searching_a_group") {
+    } else if (status == "in_progress" ||
+        status == "creating_group" ||
+        status == "searching_a_group") {
       statusColor = Colors.orange;
     } else if (status == "waiting_for_correction") {
       statusColor = Colors.blue;
     }
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15, vertical: isHistory ? 10 : 15),
+      height: 50,
+      padding: EdgeInsets.symmetric(horizontal: 15),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
         boxShadow: hasShadow && !isHistory
-            ? [const BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))]
+            ? [
+                const BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 4,
+                  offset: Offset(0, 2),
+                ),
+              ]
             : [],
         border: isHistory ? Border.all(color: Colors.grey.shade200) : null,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // LATO SINISTRO: Solo il Nome
           Expanded(
             child: Text(
-              project.name,
+              isHistory ? "${project.name} #$index" : project.name,
               style: TextStyle(
                 fontWeight: isHistory ? FontWeight.normal : FontWeight.bold,
                 fontSize: isHistory ? 14 : 16,
@@ -61,15 +70,15 @@ class ProjectCard extends StatelessWidget {
             ),
           ),
 
-          // LATO DESTRO: [Badge] + [Voto]
-          // Usiamo una Row con minAxisSize per tenerli compatti a destra
           Row(
-            mainAxisSize: MainAxisSize.min, 
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // 1. IL BADGE (Se esiste, lo mostriamo PRIMA del voto)
               if (count != null && count! > 0) ...[
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(12),
@@ -84,14 +93,11 @@ class ProjectCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 10), // Spazio tra badge e voto
+                const SizedBox(width: 10),
               ],
 
-              // 2. IL VOTO (Sempre allineato a destra)
               if (mark != null)
                 SizedBox(
-                  // Un piccolo width fisso opzionale per allineare i numeri (es. 30px)
-                  // Se preferisci che sia fluido, rimuovi il Container e lascia solo Text
                   child: Text(
                     "$mark",
                     textAlign: TextAlign.right,
@@ -105,7 +111,11 @@ class ProjectCard extends StatelessWidget {
               else
                 Text(
                   status.replaceAll('_', ' '),
-                  style: const TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
             ],
           ),

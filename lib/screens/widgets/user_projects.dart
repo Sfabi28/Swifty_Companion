@@ -14,6 +14,8 @@ class UserProjects extends StatefulWidget {
 class _UserProjectsState extends State<UserProjects> {
   late Map<String, List<Project>> _groupedProjects;
 
+  final Map<String, bool> _expandedStates = {};
+
   @override
   void initState() {
     super.initState();
@@ -28,13 +30,7 @@ class _UserProjectsState extends State<UserProjects> {
     }
     grouped.forEach((key, list) {
       list.sort((a, b) {
-        bool valA = a.validated ?? false;
-        bool valB = b.validated ?? false;
-        if (valA && !valB) return -1;
-        if (!valA && valB) return 1;
-        int markA = a.finalMark ?? 0;
-        int markB = b.finalMark ?? 0;
-        return markB.compareTo(markA);
+        return b.teamId.compareTo(a.teamId);
       });
     });
     return grouped;
@@ -42,7 +38,6 @@ class _UserProjectsState extends State<UserProjects> {
 
   @override
   Widget build(BuildContext context) {
-    
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -68,14 +63,16 @@ class _UserProjectsState extends State<UserProjects> {
           if (widget.user.projects.isEmpty)
             const Padding(
               padding: EdgeInsets.all(10),
-              child: Text("Nessun progetto trovato per questo utente."),
+              child: Text("No project found for this user"),
             )
           else
-            // Usiamo _groupedProjects calcolato in initState
             ..._groupedProjects.entries.map((entry) {
+              final String projectSlug = entry.key;
               final List<Project> history = entry.value;
               final Project bestProject = history.first;
               final int hiddenCount = history.length - 1;
+
+              bool isExpanded = _expandedStates[projectSlug] ?? false;
 
               if (hiddenCount <= 0) {
                 return Padding(
@@ -92,30 +89,64 @@ class _UserProjectsState extends State<UserProjects> {
                     borderRadius: BorderRadius.circular(15),
                     boxShadow: [
                       const BoxShadow(
-                        color: Colors.black12, 
-                        blurRadius: 4, 
-                        offset: Offset(0, 2)
-                      )
+                        color: Colors.black12,
+                        blurRadius: 4,
+                        offset: Offset(0, 2),
+                      ),
                     ],
                   ),
                   child: Theme(
-                    data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                    data: Theme.of(context).copyWith(
+                      dividerColor: Colors.transparent,
+                      visualDensity: VisualDensity.compact,
+                      listTileTheme: const ListTileThemeData(
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                        minVerticalPadding: 0,
+                        horizontalTitleGap: 0,
+                      ),
+                    ),
                     child: ExpansionTile(
                       tilePadding: EdgeInsets.zero,
-                      childrenPadding: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
+                      childrenPadding: const EdgeInsets.only(
+                        bottom: 10,
+                        left: 10,
+                        right: 10,
+                      ),
                       dense: true,
-                      trailing: const SizedBox.shrink(),
-                      
-                      title: ProjectCard(
-                        project: bestProject, 
-                        hasShadow: false, 
-                        count: hiddenCount, 
+
+                      onExpansionChanged: (bool expanded) {
+                        setState(() {
+                          _expandedStates[projectSlug] = expanded;
+                        });
+                      },
+
+                      trailing: Padding(
+                        padding: const EdgeInsets.only(right: 10.0),
+                        child: Icon(
+                          isExpanded ? Icons.expand_less : Icons.expand_more,
+                          color: Colors.grey,
+                        ),
                       ),
 
-                      children: history.skip(1).map((oldProject) {
+                      title: ProjectCard(
+                        project: bestProject,
+                        hasShadow: false,
+                        count: hiddenCount,
+                      ),
+
+                      children: history.asMap().entries.skip(1).map((entry) {
+                        int index = entry.key;
+                        Project oldProject = entry.value;
+                        int chronologicalNumber = history.length - index - 1;
+
                         return Padding(
                           padding: const EdgeInsets.only(top: 5),
-                          child: ProjectCard(project: oldProject, isHistory: true),
+                          child: ProjectCard(
+                            project: oldProject,
+                            isHistory: true,
+                            index: chronologicalNumber,
+                          ),
                         );
                       }).toList(),
                     ),
